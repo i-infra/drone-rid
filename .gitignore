@@ -2,3 +2,5 @@ __pycache__/
 *.pyc
 out/
 .DS_Store
+site/index.json
+site/index.json.gz

@@ -6,6 +6,10 @@ range, plus every individual serial number the declarants listed.
 
 Source: https://uasdoc.faa.gov/listDocs. Snapshot taken 2026-10-12.
 
+**Lookup page: https://i-infra.github.io/drone-rid/** — type a serial number
+from a Remote ID broadcast and watch it narrow to the declared make and model
+with each character.
+
 | | |
 |---|---|
 | documents | 507 (478 Remote ID, 29 Operations Over People) |
@@ -81,6 +85,27 @@ docker run --rm --init --network host --shm-size=1g \
 
 A full run takes about 35 minutes and is resumable (`docs.jsonl`).
 `--rebuild` rewrites the CSV/JSON from `docs.jsonl` without a browser.
+
+## Lookup site
+
+`site/index.html` is a single static page. `tools/build_index.py` turns the
+dataset into `site/index.json`: every declaration's serials collapsed into
+`[low, high]` intervals (declared ranges, `start-end` rows, runs of
+consecutive listed serials, and spans of listed serials that share all but
+their last three characters). A typed prefix `q` is consistent with an
+interval iff `low[:len(q)] <= q <= high[:len(q)]`; that one comparison over
+~15k intervals is the whole search. The page says `exact` only when the full
+serial lies inside a lossless interval; a hit inside a span means a serial of
+that shape was declared, not necessarily this one.
+
+The GitHub Actions workflow in `.github/workflows/pages.yml` rebuilds the index
+and deploys `site/` to GitHub Pages on every push that touches the data, the
+page or the builder. To build locally:
+
+```sh
+python3 tools/build_index.py --stats
+python3 -m http.server -d site 8000   # then open http://localhost:8000/
+```
 
 ## Provenance
 
